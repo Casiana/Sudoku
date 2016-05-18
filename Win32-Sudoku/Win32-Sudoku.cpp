@@ -10,7 +10,12 @@
 #include "stdafx.h" 
 //function forward declarations
 
+
 HINSTANCE hInst;
+
+HWND Sudoku[9][9];
+int mat[9][9];
+
 const char g_szClassName[] = "myWindowClass"; 
  
 ATOM RegisterGridClass(HINSTANCE);
@@ -62,7 +67,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			DialogBox(hInst, MAKEINTRESOURCE(104), hwnd, About);
 			break;
 
-
+		case (40006) :
+			DestroyWindow(hwnd);
 			break;
 
 		default:
@@ -71,8 +77,89 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_CREATE:
-	{}
+	{
+					  
+					  /*	  srand(time(NULL));
+					  char v[7][8];
+					  for (int i = 0; i < 7; i++)
+					  _itoa_s(rand()%10, v[i], 8);*/
 
+					  for (int i = 0; i < 9;i++)
+					  for (int j = 0; j < 9; j++)
+					  {
+						  if (i==0 && j==0)
+							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "9", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+						  else if (i == 3 && j == 8)
+							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "5", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+						  else if (i == 5 && j == 6)
+							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "7", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+						  else if (i == 8 && j == 8)
+							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "1", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+						  else if (i == 6 && j == 3)
+							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "2", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+						  else if (i == 1 && j == 8)
+							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "8", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+						  else if (i == 2 && j == 7)
+							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "3", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+						  else if (i == 2 && j == 2)
+							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "6", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+						  else if (i == 6 && j == 2)
+							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "1", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+						  else if (i == 4 && j == 4)
+							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "1", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+						  else if (i == 4 && j == 5)
+							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "4", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+
+						  else 
+						  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("EDIT"), TEXT(""), WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+					  }
+
+					  /*WCHAR asd[20];
+					  GetWindowText(casuta[0][0], asd, 20);
+					  mat[0][0] = _wtoi(asd);*/
+	}
+
+		break;
+
+	case WM_PAINT:
+	{
+					 HDC hdc = BeginPaint(hwnd, &ps);
+
+					 HPEN hPenOld;
+					 HPEN hLinePen;
+					 COLORREF qLineColor;
+					 qLineColor = RGB(64, 0, 64);
+					 hLinePen = CreatePen(PS_SOLID, 5, qLineColor);
+					 hPenOld = (HPEN)SelectObject(hdc, hLinePen);
+
+					 PAINTSTRUCT ps;
+
+					 MoveToEx(hdc, 165, 50, NULL);
+					 LineTo(hdc, 165, 400);
+
+					 MoveToEx(hdc, 285, 50, NULL);
+					 LineTo(hdc, 285, 400);
+
+					 MoveToEx(hdc, 50, 165, NULL);
+					 LineTo(hdc, 400, 165);
+				
+					 MoveToEx(hdc, 50, 285, NULL);
+					 LineTo(hdc, 400, 285);
+
+					 EndPaint(hwnd, &ps);
+	}
 		break;
 
 	case WM_CLOSE:
@@ -142,7 +229,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		g_szClassName,
 		"SUDOKU",
 		WS_BORDER | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+		CW_USEDEFAULT, 0, 475, 550,
 		NULL, NULL, hInstance, NULL);
 
 
