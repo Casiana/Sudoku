@@ -129,7 +129,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					  /*WCHAR asd[20];
 					  GetWindowText(casuta[0][0], asd, 20);
 					  mat[0][0] = _wtoi(asd);*/
-	}
+	} 
 
 		break;
 
