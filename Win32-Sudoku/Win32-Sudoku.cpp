@@ -13,12 +13,14 @@
 
 HINSTANCE hInst;
 
+HWND   idcbuton1;
+HWND	idcbuton2;
 HWND Sudoku[9][9];
 int mat[9][9];
 
 const char g_szClassName[] = "myWindowClass"; 
  
-ATOM RegisterGridClass(HINSTANCE);
+ATOM RegisterGridClass(HINSTANCE); 
 ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -46,6 +48,79 @@ LRESULT CALLBACK DlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 	return FALSE;
 }
 
+void verificare()
+{
+	CHAR sir[20];
+	int x;
+	for (int i = 0; i < 9; i++)
+	for (int j = 0; j < 9; j++)
+	{
+		GetWindowText(Sudoku[i][j], sir, 20);
+		x = atoi(sir);
+		if (x == 0)
+			mat[i][j] = 51;
+		else mat[i][j] = x;
+	}
+
+	char buffer[40];
+
+	/*for (int k = 0; k < 9; k++)
+	{
+	for (int i = 0; i < 8; i++)
+	for (int j = i + 1; i < 9; i++)
+	if (mat[i][k] == mat[j][k] && mat[i][k] != 51)
+	{
+	_itoa_s(mat[i][k], buffer, 10);
+	MessageBox(NULL, buffer, "Error!",
+	MB_ICONEXCLAMATION | MB_OK);
+	break;
+	}
+	}
+	*/
+	int nr = 0;                // pe coloane
+
+	for (int k = 0; k < 9; k++)
+	{
+		for (int i = 0; i < 8; i++)
+		for (int j = i + 1; j < 9; j++)
+		if (mat[k][i] == mat[k][j] && mat[k][i] != 51)
+		{
+			{
+				_itoa_s(mat[k][j], buffer, 10);
+				MessageBox(NULL, buffer, "Error!",
+					MB_ICONEXCLAMATION | MB_OK);
+				nr++;
+			}
+		}
+		if (nr != 0)
+			break;
+	}
+
+	if (nr == 0)       //pe linii
+	{
+		nr = 0;
+		for (int k = 0; k < 9; k++)
+		{
+			for (int i = 0; i < 8; i++)
+			for (int j = i + 1; j < 9; j++)
+			if (mat[i][k] == mat[j][k] && mat[i][k] != 51)
+			{
+				{
+					_itoa_s(mat[j][k], buffer, 10);
+					MessageBox(NULL, buffer, "Error!",
+						MB_ICONEXCLAMATION | MB_OK);
+					nr++;
+				}
+			}
+			if (nr != 0)
+				break;
+		}
+	}
+	//	MessageBox(NULL, "Nu este corect !", "Error!",
+		//MB_ICONEXCLAMATION | MB_OK);
+
+}
+
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	int wmId, wmEvent;
@@ -71,6 +146,29 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			DestroyWindow(hwnd);
 			break;
 
+		case BN_CLICKED:
+		{
+			{
+				if ((HWND)lParam == idcbuton1)
+				verificare();
+
+			/*	for (int i = 0; i < 9; i++)
+				for (int j = 0; j < 9; j++)
+					mat[i][j] = i*j;
+
+				for (int i = 0; i < 9; i++)
+				for (int j = 0; j < 9; j++)
+				{
+					char sir[23];
+					_itoa_s(mat[i][j], sir, 20);
+					Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), sir, WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+						50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+				}*/
+
+
+			}
+		}
+			break;
 		default:
 			return DefWindowProc(hwnd, msg, wParam, lParam);
 		}
@@ -126,15 +224,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
 					  }
 
-					  /*WCHAR asd[20];
-					  GetWindowText(casuta[0][0], asd, 20);
-					  mat[0][0] = _wtoi(asd);*/
+					  idcbuton1 = CreateWindowEx(NULL, "BUTTON", "Verificã !", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+						430, 150, 150, 30, hwnd, (HMENU)NULL, GetModuleHandle(NULL), NULL);					 
+					  idcbuton2 = CreateWindowEx(NULL, "BUTTON", "Rezolvã !", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+						  430, 265, 150, 30, hwnd, (HMENU)NULL, GetModuleHandle(NULL), NULL);
 	} 
 
-		break;
+		break; 
 
 	case WM_PAINT:
 	{
+
 					 HDC hdc = BeginPaint(hwnd, &ps);
 
 					 HPEN hPenOld;
@@ -159,6 +259,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					 LineTo(hdc, 400, 285);
 
 					 EndPaint(hwnd, &ps);
+
 	}
 		break;
 
@@ -229,7 +330,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		g_szClassName,
 		"SUDOKU",
 		WS_BORDER | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
-		CW_USEDEFAULT, 0, 475, 550,
+		CW_USEDEFAULT, 0, 630, 550,
 		NULL, NULL, hInstance, NULL);
 
 
