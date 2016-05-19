@@ -51,5 +51,8 @@
     <Image Include="Win32-Sudoku.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="C:\Users\Casiana\Desktop\Sudoku.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

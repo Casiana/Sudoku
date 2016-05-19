@@ -95,6 +95,7 @@
     <ResourceCompile Include="Win32-Sudoku.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="C:\Users\Casiana\Desktop\Sudoku.ico" />
     <Image Include="small.ico" />
     <Image Include="Win32-Sudoku.ico" />
   </ItemGroup>

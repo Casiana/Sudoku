@@ -62,7 +62,7 @@ void verificare()
 		else mat[i][j] = x;
 	}
 
-	char buffer[40];
+	char buffer[4];
 
 	/*for (int k = 0; k < 9; k++)
 	{
@@ -77,6 +77,7 @@ void verificare()
 	}
 	}
 	*/
+	char buf[80];
 	int nr = 0;                // pe coloane
 
 	for (int k = 0; k < 9; k++)
@@ -86,8 +87,10 @@ void verificare()
 		if (mat[k][i] == mat[k][j] && mat[k][i] != 51)
 		{
 			{
+				strcpy_s(buf, "Try better! The following one is wrong: ");
 				_itoa_s(mat[k][j], buffer, 10);
-				MessageBox(NULL, buffer, "Error!",
+				strcat_s(buf, buffer);
+				MessageBox(NULL, buf, "Error",
 					MB_ICONEXCLAMATION | MB_OK);
 				nr++;
 			}
@@ -106,8 +109,10 @@ void verificare()
 			if (mat[i][k] == mat[j][k] && mat[i][k] != 51)
 			{
 				{
-					_itoa_s(mat[j][k], buffer, 10);
-					MessageBox(NULL, buffer, "Error!",
+					strcpy_s(buf, "Try better! The following one is wrong: ");
+					_itoa_s(mat[i][k], buffer, 10);
+					strcat_s(buf, buffer);
+					MessageBox(NULL, buf, "Error!",
 						MB_ICONEXCLAMATION | MB_OK);
 					nr++;
 				}
@@ -116,8 +121,91 @@ void verificare()
 				break;
 		}
 	}
-	//	MessageBox(NULL, "Nu este corect !", "Error!",
-		//MB_ICONEXCLAMATION | MB_OK);
+
+	int i, j, l, h,c, k;
+
+	if (nr == 0)
+		{
+		for (int s = 0; s < 9; s = s + 3)
+		{
+			for (l = s; l < s+2; l++) //aici
+			for (c = 0; c < 2; c++)
+			{
+				for (h = l + 1; h <= s+3; h++)
+				for (k = c + 1; k <= 3; k++)
+				if (mat[l][c] == mat[h][k] && mat[l][c] != 51)
+				{ 
+					strcpy_s(buf, "Try better! The following one is wrong: ");
+					_itoa_s(mat[l][c], buffer, 10);
+					strcat_s(buf, buffer);
+					MessageBox(NULL, buf, "Error!",
+						MB_ICONEXCLAMATION | MB_OK);
+					nr++;
+				}
+
+				if (nr != 0)
+					break;
+			}
+		}
+	}
+
+	if (nr == 0)
+	{
+		for (int s = 0; s < 9; s = s + 3)
+		{
+			for (l = s; l < s + 2; l++) //aici
+			for (c = 3; c < 5; c++)
+			{
+				for (h = l + 1; h <= s + 3; h++)
+				for (k = c + 1; k <= 5; k++)
+				if (mat[l][c] == mat[h][k] && mat[l][c] != 51)
+				{
+					strcpy_s(buf, "Try better! The following one is wrong: ");
+					_itoa_s(mat[l][c], buffer, 10);
+					strcat_s(buf, buffer);
+					MessageBox(NULL, buf, "Error!",
+						MB_ICONEXCLAMATION | MB_OK);
+					nr++;
+				}
+
+				if (nr != 0)
+					break;
+			}
+		}
+	}
+
+	if (nr == 0)
+	{
+		for (int s = 0; s < 9; s = s + 3)
+		{
+			for (l = s; l < s + 2; l++) //aici
+			for (c = 6; c < 9; c++)
+			{
+				for (h = l + 1; h <= s + 3; h++)
+				for (k = c + 1; k <= 9; k++)
+				if (mat[l][c] == mat[h][k] && mat[l][c] != 51)
+				{
+					strcpy_s(buf, "Try better! The following one is wrong: ");
+					_itoa_s(mat[l][c], buffer, 10);
+					strcat_s(buf, buffer);
+					MessageBox(NULL, buf, "Error!",
+						MB_ICONEXCLAMATION | MB_OK);
+					nr++;
+					if (nr != 0)
+						break;
+				}
+			}
+		}
+
+	}
+
+	if (nr == 0)
+	{
+		LPCTSTR Caption = "Correct";
+		MessageBox(NULL, "Everything is fine. Go ahead!",
+			Caption, MB_OK | MB_ICONINFORMATION);
+	}
+
 
 }
 
@@ -151,21 +239,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			{
 				if ((HWND)lParam == idcbuton1)
 				verificare();
-
-			/*	for (int i = 0; i < 9; i++)
-				for (int j = 0; j < 9; j++)
-					mat[i][j] = i*j;
-
-				for (int i = 0; i < 9; i++)
-				for (int j = 0; j < 9; j++)
-				{
-					char sir[23];
-					_itoa_s(mat[i][j], sir, 20);
-					Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), sir, WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
-						50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
-				}*/
-
-
 			}
 		}
 			break;
@@ -224,9 +297,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
 					  }
 
-					  idcbuton1 = CreateWindowEx(NULL, "BUTTON", "Verificã !", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+					  idcbuton1 = CreateWindowEx(NULL, "BUTTON", "Verify! ", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 						430, 150, 150, 30, hwnd, (HMENU)NULL, GetModuleHandle(NULL), NULL);					 
-					  idcbuton2 = CreateWindowEx(NULL, "BUTTON", "Rezolvã !", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+					  idcbuton2 = CreateWindowEx(NULL, "BUTTON", "Solve it!", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 						  430, 265, 150, 30, hwnd, (HMENU)NULL, GetModuleHandle(NULL), NULL);
 	} 
 
