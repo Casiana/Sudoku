@@ -219,6 +219,19 @@ void verificare()
 		MessageBox(NULL, "Everything is fine. Go ahead!",
 			Caption, MB_OK | MB_ICONINFORMATION);
 	}
+
+	bool complet = true;                           //daca este toata tabla Sudoku completata
+	for (int i = 0; i < 9;i++)
+	for (int j = 0; j < 9; j++)
+	{
+		if (mat[i][j] == 51)
+			complet = false;
+	}
+
+	if (nr==0 && complet==true)                    //daca nu are greseli si este toata completata
+		MessageBox(NULL, "You have finished the game! Good job !", "You WON!",
+		MB_ICONEXCLAMATION | MB_OK);
+
 }
 
 int free(int sudoku[][9], int lin, int col, int num)
@@ -343,7 +356,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				{
 					if (butonverificare==false)
 					verificare();
-					if (butonverificare == true)
+					if (butonverificare == true)                 //daca a fost completata prin algoritm si nu de catre jucator
 					{
 						LPCTSTR Caption = "Solved";
 						MessageBox(NULL, "Try to complete the game by yourself -> NEW GAME",
