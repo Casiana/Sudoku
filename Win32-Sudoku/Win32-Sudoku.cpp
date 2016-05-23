@@ -8,18 +8,19 @@
 #include <gdiplus.h>
 #include<stdlib.h>
 #include "stdafx.h" 
-//function forward declarations
+#define N 9
+//function forward declarations 
 
 
 HINSTANCE hInst;
-
+bool butonverificare = false;
 HWND   idcbuton1;
 HWND	idcbuton2;
 HWND Sudoku[9][9];
 int mat[9][9];
 
 const char g_szClassName[] = "myWindowClass"; 
- 
+  
 ATOM RegisterGridClass(HINSTANCE); 
 ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
@@ -44,7 +45,7 @@ LRESULT CALLBACK DlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 			return TRUE;
 		}
 		break;
-	}
+	} 
 	return FALSE;
 }
 
@@ -58,8 +59,21 @@ void verificare()
 		GetWindowText(Sudoku[i][j], sir, 20);
 		x = atoi(sir);
 		if (x == 0)
-			mat[i][j] = 51;
+			mat[i][j] = 51; 
 		else mat[i][j] = x;
+	}
+
+	int nr = 0;
+
+	for (int i = 0; i < 9; i++)
+	for (int j = 0; j < 9; j++)                                                  //daca numerele depasesc intervalul 1-9
+	{
+		if (mat[i][j]>9 && mat[i][j] != 51)
+		{
+			MessageBox(NULL, "All the numbers have to be between 1 and 9. Check again!", "Error",
+				MB_ICONEXCLAMATION | MB_OK);
+			nr = 1;
+		}
 	}
 
 	char buffer[4];
@@ -78,7 +92,7 @@ void verificare()
 	}
 	*/
 	char buf[80];
-	int nr = 0;                // pe coloane
+	               // pe coloane
 
 	for (int k = 0; k < 9; k++)
 	{
@@ -140,7 +154,7 @@ void verificare()
 					strcat_s(buf, buffer);
 					MessageBox(NULL, buf, "Error!",
 						MB_ICONEXCLAMATION | MB_OK);
-					nr++;
+					nr++; 
 				}
 
 				if (nr != 0)
@@ -205,8 +219,94 @@ void verificare()
 		MessageBox(NULL, "Everything is fine. Go ahead!",
 			Caption, MB_OK | MB_ICONINFORMATION);
 	}
+}
+
+int free(int sudoku[][9], int lin, int col, int num)
+{
+	int i, j;
+	for (i = 0; i<9; ++i)
+	if ((sudoku[lin][i] == num) || (sudoku[i][col] == num))            //verificare in linie si in coloana
+		return 0;
+
+	//patrat
+	int linStart = (lin / 3) * 3;
+	int colStart = (col / 3) * 3;
+
+	for (i = linStart; i<(linStart + 3); ++i)
+	{ 
+		for (j = colStart; j<(colStart + 3); ++j)
+		{
+			if (sudoku[i][j] == num)
+				return 0;
+		}
+	}
+
+	return 1;
+}
+
+int completare(int sudoku[][9], int lin, int col) 
+{
+	int i;
+	if (lin<9 && col<9)
+	{
+		if (sudoku[lin][col] != 0)                          //daca este deja ceva in matrice 
+		{
+			if ((col + 1)<9)
+				return completare(sudoku, lin, col + 1);             //daca trec pe linia urmatoare
+			else if ((lin + 1)<9)
+				return completare(sudoku, lin + 1, 0);
+			else
+				return 1; 
+		}
+
+		else
+		{
+			for (i = 0; i<9; ++i)
+			{
+				if (free(sudoku, lin, col, i + 1))
+				{
+					sudoku[lin][col] = i + 1;
+
+					if ((col + 1)<9)
+					{
+						if (completare(sudoku, lin, col + 1))
+							return 1;
+						else
+							sudoku[lin][col] = 0;
+					}
+					else if ((lin + 1)<9)
+					{
+						if (completare(sudoku, lin + 1, 0))
+							return 1;
+						else
+							sudoku[lin][col] = 0;
+					}
+					else
+						return 1;
+				}
+			}
+		}
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
+}
 
 
+void completare_matrice()
+{
+	CHAR sir[20];
+	int x;
+	for (int i = 0; i < 9; i++)
+	for (int j = 0; j < 9; j++)
+	{
+		GetWindowText(Sudoku[i][j], sir, 20);              //pun in matrice valorile din "Sudoku" introduse de catre utilizator
+		x = atoi(sir);
+		mat[i][j] = x;
+	}
+	completare(mat, 0, 0); 
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -225,6 +325,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		// SLECTIILE MENIULUI
 		switch (wmId)
 		{
+		case (40005):                                    // NEW GAME
+
 
 		case (40016) :  //DIALOG BOX
 			DialogBox(hInst, MAKEINTRESOURCE(104), hwnd, About);
@@ -238,7 +340,33 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 			{
 				if ((HWND)lParam == idcbuton1)
-				verificare();
+				{
+					if (butonverificare==false)
+					verificare();
+					if (butonverificare == true)
+					{
+						LPCTSTR Caption = "Solved";
+						MessageBox(NULL, "Try to complete the game by yourself -> NEW GAME",
+							Caption, MB_OK | MB_ICONINFORMATION);
+					}
+
+				}
+
+				if ((HWND)lParam == idcbuton2)
+				{
+					completare_matrice();
+
+				int k, l;                                      //dupa ce am completat matricea, completez pe ecran
+					char x[34];
+					for (k = 0; k < N; k++)
+					for (l = 0; l < N; l++)
+					{
+						_itoa_s(mat[k][l], x, 10);
+						Sudoku[k][l] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), x, WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+							50 + k * 40, 50 + l * 40, 30, 30, hwnd, NULL, NULL, NULL);						 
+					}
+					butonverificare = true;
+				}
 			}
 		}
 			break;
@@ -249,12 +377,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	case WM_CREATE:
 	{
-					  
-					  /*	  srand(time(NULL));
-					  char v[7][8];
-					  for (int i = 0; i < 7; i++)
-					  _itoa_s(rand()%10, v[i], 8);*/
-
 					  for (int i = 0; i < 9;i++)
 					  for (int j = 0; j < 9; j++)
 					  {
@@ -296,13 +418,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("EDIT"), TEXT(""), WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
 							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
 					  }
-
 					  idcbuton1 = CreateWindowEx(NULL, "BUTTON", "Verify! ", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 						430, 150, 150, 30, hwnd, (HMENU)NULL, GetModuleHandle(NULL), NULL);					 
 					  idcbuton2 = CreateWindowEx(NULL, "BUTTON", "Solve it!", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 						  430, 265, 150, 30, hwnd, (HMENU)NULL, GetModuleHandle(NULL), NULL);
-	} 
 
+	} 
 		break; 
 
 	case WM_PAINT:
@@ -330,6 +451,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				
 					 MoveToEx(hdc, 50, 285, NULL);
 					 LineTo(hdc, 400, 285);
+
 
 					 EndPaint(hwnd, &ps);
 
@@ -360,8 +482,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	wc.style = CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc = WndProc;  //WndProcedure
 	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
-
+	wc.cbWndExtra = 0; 
+	 
 	wc.hIcon = static_cast<HICON>(LoadImage(hInstance,
 		MAKEINTRESOURCE(105),
 		IMAGE_ICON,
@@ -444,7 +566,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		return (INT_PTR)TRUE;
 
 	case WM_COMMAND:
-		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)   //si aici le folosesc la fel
+		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)  
 		{
 			EndDialog(hDlg, LOWORD(wParam));
 			return (INT_PTR)TRUE;
@@ -456,4 +578,3 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 
-// keBlank=>IsFree 
