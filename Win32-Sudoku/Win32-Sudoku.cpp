@@ -102,7 +102,7 @@ void verificare()
 		{
 			{
 				strcpy_s(buf, "Try better! The following one is wrong: ");
-				_itoa_s(mat[k][j], buffer, 10);
+				_itoa_s([k][j], buffer, 10);
 				strcat_s(buf, buffer);
 				MessageBox(NULL, buf, "Error",
 					MB_ICONEXCLAMATION | MB_OK);
@@ -219,18 +219,6 @@ void verificare()
 		MessageBox(NULL, "Everything is fine. Go ahead!",
 			Caption, MB_OK | MB_ICONINFORMATION);
 	}
-
-	bool complet = true;                           //daca este toata tabla Sudoku completata
-	for (int i = 0; i < 9;i++)
-	for (int j = 0; j < 9; j++)
-	{
-		if (mat[i][j] == 51)
-			complet = false;
-	}
-
-	if (nr==0 && complet==true)                    //daca nu are greseli si este toata completata
-		MessageBox(NULL, "You have finished the game! Good job !", "You WON!",
-		MB_ICONEXCLAMATION | MB_OK);
 
 }
 
