@@ -372,7 +372,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			break;
 		default:
 			return DefWindowProc(hwnd, msg, wParam, lParam);
-		}
+		} 
 		break;
 
 	case WM_CREATE:
