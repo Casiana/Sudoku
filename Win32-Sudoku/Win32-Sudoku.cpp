@@ -11,6 +11,7 @@
 #define N 9
 //function forward declarations 
 
+int nr = 0;
 
 HINSTANCE hInst;
 bool butonverificare = false;
@@ -51,6 +52,7 @@ LRESULT CALLBACK DlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 
 void verificare()
 {
+	nr = 0;
 	CHAR sir[20];
 	int x;
 	for (int i = 0; i < 9; i++)
@@ -63,7 +65,7 @@ void verificare()
 		else mat[i][j] = x;
 	}
 
-	int nr = 0;
+	//int nr = 0;
 
 	for (int i = 0; i < 9; i++)
 	for (int j = 0; j < 9; j++)                                                  //daca numerele depasesc intervalul 1-9
@@ -102,7 +104,7 @@ void verificare()
 		{
 			{
 				strcpy_s(buf, "Try better! The following one is wrong: ");
-				_itoa_s([k][j], buffer, 10);
+				_itoa_s(mat[k][j], buffer, 10);
 				strcat_s(buf, buffer);
 				MessageBox(NULL, buf, "Error",
 					MB_ICONEXCLAMATION | MB_OK);
@@ -213,12 +215,24 @@ void verificare()
 
 	}
 
-	if (nr == 0)
+	/*if (nr == 0)
 	{
 		LPCTSTR Caption = "Correct";
 		MessageBox(NULL, "Everything is fine. Go ahead!",
 			Caption, MB_OK | MB_ICONINFORMATION);
 	}
+	*/
+	bool complet = true;                           //daca este toata tabla Sudoku completata
+	for (int i = 0; i < 9;i++)
+	for (int j = 0; j < 9; j++)
+	{
+		if (mat[i][j] == 51)
+			complet = false;
+	}
+
+	if (nr==0 && complet==true)                    //daca nu are greseli si este toata completata
+		MessageBox(NULL, "You have finished the game! Good job !", "You WON!",
+		MB_ICONEXCLAMATION | MB_OK);
 
 }
 
@@ -327,7 +341,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		switch (wmId)
 		{
 		case (40005):                                    // NEW GAME
+		{
+			 for (int i = 0; i < 9; i++)
+			 for (int j = 0; j < 9; j++)
+				 mat[i][j] = 0;
 
+			 nr = 0;
+			 butonverificare = false;
+
+		}
+														 break;
 
 		case (40016) :  //DIALOG BOX
 			DialogBox(hInst, MAKEINTRESOURCE(104), hwnd, About);
@@ -352,22 +375,35 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					}
 
 				}
-				 
+
 				if ((HWND)lParam == idcbuton2)
 				{
-					completare_matrice();
-
-				int k, l;                                      //dupa ce am completat matricea, completez pe ecran
-					char x[34];
-					for (k = 0; k < N; k++)
-					for (l = 0; l < N; l++)
+					verificare();
+					if (nr == 0)
 					{
-						_itoa_s(mat[k][l], x, 10);
-						Sudoku[k][l] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), x, WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
-							50 + k * 40, 50 + l * 40, 30, 30, hwnd, NULL, NULL, NULL);						 
+						completare_matrice();
+
+						int k, l;                                      //dupa ce am completat matricea, completez pe ecran
+						char x[34];
+						for (k = 0; k < N; k++)
+						for (l = 0; l < N; l++)
+						{
+							_itoa_s(mat[k][l], x, 10);
+							Sudoku[k][l] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), x, WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+								50 + k * 40, 50 + l * 40, 30, 30, hwnd, NULL, NULL, NULL);
+						}
+						butonverificare = true;
 					}
-					butonverificare = true;
+					else {
+						nr = 0;
+						LPCTSTR Caption = "WAIT!";
+						MessageBox(NULL, "Try to verify the errors and then click SOLVE IT",
+							Caption, MB_OK | MB_ICONINFORMATION);
+
+					}
+
 				}
+
 			}
 		}
 			break;
