@@ -15,6 +15,8 @@ int nr = 0;
 
 HINSTANCE hInst;
 bool butonverificare = false;
+bool solveit = false;
+
 HWND   idcbuton1;
 HWND	idcbuton2;
 HWND Sudoku[9][9];
@@ -187,7 +189,7 @@ void verificare()
 				if (nr != 0)
 					break;
 			}
-		}
+		}  
 	}
 
 	if (nr == 0)
@@ -216,7 +218,7 @@ void verificare()
 	}
 
 	/*if (nr == 0)
-	{
+	{ 
 		LPCTSTR Caption = "Correct";
 		MessageBox(NULL, "Everything is fine. Go ahead!",
 			Caption, MB_OK | MB_ICONINFORMATION);
@@ -259,58 +261,86 @@ int free(int sudoku[][9], int lin, int col, int num)
 	return 1;
 }
 
-int completare(int sudoku[][9], int lin, int col) 
+int completare(HWND hwnd,int sudoku[][9], int lin, int col) 
 {
 	int i;
+	char x[20];
+
 	if (lin<9 && col<9)
 	{
 		if (sudoku[lin][col] != 0)                          //daca este deja ceva in matrice 
 		{
 			if ((col + 1)<9)
-				return completare(sudoku, lin, col + 1);             //daca trec pe linia urmatoare
+				return completare(hwnd,sudoku, lin, col + 1);             //daca trec pe linia urmatoare
 			else if ((lin + 1)<9)
-				return completare(sudoku, lin + 1, 0);
+				return completare(hwnd,sudoku, lin + 1, 0);
 			else
 				return 1; 
 		}
 
 		else
 		{
-			for (i = 0; i<9; ++i)
+			for (i = 0; i < 9; ++i)
 			{
 				if (free(sudoku, lin, col, i + 1))
 				{
-					sudoku[lin][col] = i + 1;
+					{
+						sudoku[lin][col] = i + 1;
+						_itoa_s(mat[lin][col], x, 10);
+						SetWindowText(Sudoku[lin][col], LPSTR(x));
+						UpdateWindow(hwnd);
+						Sleep(0.7);
+					}
 
-					if ((col + 1)<9)
+					if ((col + 1) < 9)
 					{
-						if (completare(sudoku, lin, col + 1))
+						if (completare(hwnd, sudoku, lin, col + 1))
 							return 1;
+						
 						else
+						{
 							sudoku[lin][col] = 0;
+							_itoa_s(mat[lin][col], x, 10);
+							SetWindowText(Sudoku[lin][col], LPSTR(x));
+							UpdateWindow(hwnd);
+							Sleep(0.7);
+						}
 					}
-					else if ((lin + 1)<9)
+
+					else if ((lin + 1) < 9)
 					{
-						if (completare(sudoku, lin + 1, 0))
+						if (completare(hwnd, sudoku, lin + 1, 0))
 							return 1;
+						
 						else
+						{
 							sudoku[lin][col] = 0;
+							_itoa_s(mat[lin][col], x, 10);
+							SetWindowText(Sudoku[lin][col], LPSTR(x));
+							UpdateWindow(hwnd);
+							Sleep(0.7);
+						}
 					}
+
 					else
+					{               
 						return 1;
+					}
 				}
 			}
 		}
 		return 0;
 	}
+
 	else
 	{
 		return 1;
 	}
+
 }
 
 
-void completare_matrice()
+void completare_matrice(HWND hwnd)
 {
 	CHAR sir[20];
 	int x;
@@ -321,7 +351,7 @@ void completare_matrice()
 		x = atoi(sir);
 		mat[i][j] = x;
 	}
-	completare(mat, 0, 0); 
+	completare(hwnd,mat, 0, 0); 
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -350,7 +380,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			 butonverificare = false;
 
 		}
-														 break;
+	    break;
 
 		case (40016) :  //DIALOG BOX
 			DialogBox(hInst, MAKEINTRESOURCE(104), hwnd, About);
@@ -371,34 +401,29 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					{
 						LPCTSTR Caption = "Solved";
 						MessageBox(NULL, "Try to complete the game by yourself -> NEW GAME",
-							Caption, MB_OK | MB_ICONINFORMATION);
+						Caption, MB_OK | MB_ICONINFORMATION);
 					}
 
 				}
 
 				if ((HWND)lParam == idcbuton2)
 				{
+					if (solveit==false)
 					verificare();
 					if (nr == 0)
+					
 					{
-						completare_matrice();
-
-						int k, l;                                      //dupa ce am completat matricea, completez pe ecran
-						char x[34];
-						for (k = 0; k < N; k++)
-						for (l = 0; l < N; l++)
-						{
-							_itoa_s(mat[k][l], x, 10);
-							Sudoku[k][l] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), x, WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
-								50 + k * 40, 50 + l * 40, 30, 30, hwnd, NULL, NULL, NULL);
-						}
+						solveit = true;
+						completare_matrice(hwnd);
 						butonverificare = true;
 					}
-					else {
+
+					else 
+					{
 						nr = 0;
 						LPCTSTR Caption = "WAIT!";
 						MessageBox(NULL, "Try to verify the errors and then click SOLVE IT",
-							Caption, MB_OK | MB_ICONINFORMATION);
+							       Caption, MB_OK | MB_ICONINFORMATION);
 
 					}
 
@@ -406,7 +431,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 			}
 		}
-			break;
+		break;
 		default:
 			return DefWindowProc(hwnd, msg, wParam, lParam);
 		} 
@@ -459,13 +484,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						430, 150, 150, 30, hwnd, (HMENU)NULL, GetModuleHandle(NULL), NULL);					 
 					  idcbuton2 = CreateWindowEx(NULL, "BUTTON", "Solve it!", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 						  430, 265, 150, 30, hwnd, (HMENU)NULL, GetModuleHandle(NULL), NULL);
-
 	} 
-		break; 
+	break; 
 
 	case WM_PAINT:
 	{
-
 					 HDC hdc = BeginPaint(hwnd, &ps);
 
 					 HPEN hPenOld;
@@ -491,7 +514,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 
 					 EndPaint(hwnd, &ps);
-
 	}
 		break;
 
