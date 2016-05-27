@@ -6,8 +6,9 @@
 #include <stdio.h>
 #include <time.h>
 #include <gdiplus.h>
-#include<stdlib.h>
+#include <stdlib.h>
 #include "stdafx.h" 
+#include <ctime>
 #define N 9
 //function forward declarations 
 
@@ -81,20 +82,6 @@ void verificare()
 	}
 
 	char buffer[4];
-
-	/*for (int k = 0; k < 9; k++)
-	{
-	for (int i = 0; i < 8; i++)
-	for (int j = i + 1; i < 9; i++)
-	if (mat[i][k] == mat[j][k] && mat[i][k] != 51)
-	{
-	_itoa_s(mat[i][k], buffer, 10);
-	MessageBox(NULL, buffer, "Error!",
-	MB_ICONEXCLAMATION | MB_OK);
-	break;
-	}
-	}
-	*/
 	char buf[80];
 	               // pe coloane
 
@@ -217,13 +204,6 @@ void verificare()
 
 	}
 
-	/*if (nr == 0)
-	{ 
-		LPCTSTR Caption = "Correct";
-		MessageBox(NULL, "Everything is fine. Go ahead!",
-			Caption, MB_OK | MB_ICONINFORMATION);
-	}
-	*/
 	bool complet = true;                           //daca este toata tabla Sudoku completata
 	for (int i = 0; i < 9;i++)
 	for (int j = 0; j < 9; j++)
@@ -359,11 +339,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;
 	HDC hdc;
+	char x[20];
+	int r;
+	//time_t tTime = time(NULL);
 
 	switch (msg)
 
 	{
-
 	case WM_COMMAND:                                      // in caz ca apesi din meniu o anumita cifra
 		wmId = LOWORD(wParam);
 		wmEvent = HIWORD(wParam);
@@ -374,11 +356,92 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 			 for (int i = 0; i < 9; i++)
 			 for (int j = 0; j < 9; j++)
+			 {
 				 mat[i][j] = 0;
+				 SetWindowText(Sudoku[i][j], LPSTR(NULL));
+				 UpdateWindow(hwnd);
+			 }
+
+			 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			 for (int i = 0; i < 9;i++)
+			 for (int j = 0; j < 9; j++)
+			 {
+				 if (i == 0 && j == 0) //cheked
+				 {
+					 srand(unsigned(time(NULL)));             //numere de inceput random
+					 r = rand() % 5 + 1;
+					 _itoa_s(r, x, 10);
+					 SetWindowText(Sudoku[i][j], LPSTR(x));
+					 UpdateWindow(hwnd);
+				 }
+				 else if (i == 2 && j == 7) //checked
+				 {
+					 r = rand() % 5 + 1;
+					 _itoa_s(r, x, 10);
+					 SetWindowText(Sudoku[i][j], LPSTR(x));
+					 UpdateWindow(hwnd);
+				 }
+				 else if (i == 1 && j == 8) //checked
+				 {
+					 SetWindowText(Sudoku[i][j], LPSTR("8"));
+					 UpdateWindow(hwnd);
+				 }
+				 else if (i == 4 && j == 4) //checked
+				 {
+					 SetWindowText(Sudoku[i][j], LPSTR("9"));
+					 UpdateWindow(hwnd);
+				 }
+				 else if (i == 4 && j == 5) //checked
+				 {
+					 SetWindowText(Sudoku[i][j], LPSTR("7"));
+					 UpdateWindow(hwnd);
+				 }
+				 else if (i == 5 && j == 6) //checked
+				 {
+					 SetWindowText(Sudoku[i][j], LPSTR("7"));
+					 UpdateWindow(hwnd);
+				 }
+				 else if (i == 2 && j == 2) //checked
+				 {
+					 r = rand() % 10;
+					 _itoa_s(r, x, 10); 
+					 SetWindowText(Sudoku[i][j], LPSTR("6"));
+					 UpdateWindow(hwnd);
+
+				 }
+			 
+				 else if (i == 3 && j == 8) //checked
+				 {
+					 _itoa_s(r, x, 10);
+					 SetWindowText(Sudoku[i][j], LPSTR("9"));
+					 UpdateWindow(hwnd);
+				 }
+				 else if (i == 6 && j == 2) //checked
+				 {
+					 r = rand() % 5 + 1;
+					 _itoa_s(r, x, 10);
+					 SetWindowText(Sudoku[i][j], LPSTR(x));
+					 UpdateWindow(hwnd);
+				 }
+				 else if (i == 6 && j == 3) //checked
+				 {
+					 r = rand() % 10;
+					 _itoa_s(r, x, 10);
+					 SetWindowText(Sudoku[i][j], LPSTR("8"));
+					 UpdateWindow(hwnd);
+				 }
+				 else if (i == 8 && j == 8) //checked
+				 {
+					 r = rand() % 5 + 1;
+					 _itoa_s(r, x, 10);
+					 SetWindowText(Sudoku[i][j], LPSTR(x));
+					 UpdateWindow(hwnd);
+				 }
+			 }
 
 			 nr = 0;
+			 solveit = false;
 			 butonverificare = false;
-
 		}
 	    break;
 
@@ -410,8 +473,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				{
 					if (solveit==false)
 					verificare();
-					if (nr == 0)
-					
+					if (nr == 0)					
 					{
 						solveit = true;
 						completare_matrice(hwnd);
@@ -426,9 +488,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 							       Caption, MB_OK | MB_ICONINFORMATION);
 
 					}
-
 				}
-
 			}
 		}
 		break;
@@ -442,39 +502,74 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					  for (int i = 0; i < 9;i++)
 					  for (int j = 0; j < 9; j++)
 					  {
-						  if (i==0 && j==0)
+						  if (i == 0 && j == 0) //cheked
+						  {
+							  srand(unsigned(time(NULL)));             //numere de inceput random
+							  r = rand()%5+1;
+							  _itoa_s(r, x, 10);
+							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), x, WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+								  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+						  }
+						  else if (i == 2 && j == 7) //checked
+						  {
+							  r = rand() % 5+1;
+							  _itoa_s(r, x, 10);
+							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), x, WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+								  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+						  }
+						  else if (i == 1 && j == 8) //checked
+						  {
+							  _itoa_s(r, x, 10);
+							  Sudoku[j][i] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "8", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+								  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL); 
+						  }
+						  else if (i == 4 && j == 4) //checked
+						  {
 							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "9", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
-							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
-						  else if (i == 3 && j == 8)
-							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "5", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
-							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
-						  else if (i == 5 && j == 6)
+								  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+						  }
+						  else if (i == 4 && j == 5) //checked
+						  {
 							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "7", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
-							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
-						  else if (i == 8 && j == 8)
-							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "1", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
-							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
-						  else if (i == 6 && j == 3)
-							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "2", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
-							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
-						  else if (i == 1 && j == 8)
+								  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+						  }
+						  else if (i == 5 && j == 6) //checked
+						  {
+							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "7", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+								  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+						  }
+						  else if (i == 2 && j == 2) //checked
+						  {
+							  r = rand() % 10;
+							  _itoa_s(r, x, 10); Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "6", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+								  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+						  }
+						  else if (i == 3 && j == 8) //checked
+						  {
+							  _itoa_s(r, x, 10); Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "9", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+								  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+						  }
+						  else if (i == 6 && j == 2) //checked
+						  {
+							  r = rand() % 5+1;
+							  _itoa_s(r, x, 10);
+							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), x, WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+								  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+						  }
+						  else if (i == 6 && j == 3) //checked
+						  {
+							  r = rand() % 10;
+							  _itoa_s(r, x, 10);
 							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "8", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
-							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
-						  else if (i == 2 && j == 7)
-							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "3", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
-							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
-						  else if (i == 2 && j == 2)
-							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "6", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
-							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
-						  else if (i == 6 && j == 2)
-							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "1", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
-							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
-						  else if (i == 4 && j == 4)
-							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "1", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
-							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
-						  else if (i == 4 && j == 5)
-							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "4", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
-							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+								  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+						  }
+						  else if (i == 8 && j == 8) //checked
+						  {
+							  r = rand() % 5+1;
+							  _itoa_s(r, x, 10);
+							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), x, WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
+								  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+						  }
 
 						  else 
 						  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("EDIT"), TEXT(""), WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
