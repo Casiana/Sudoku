@@ -53,6 +53,16 @@ LRESULT CALLBACK DlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 	return FALSE;
 }
 
+int UsedInBox(int mat[N][N], int linie, int coloana, int num)
+{
+	int nr = 0;
+	for (int lin= 0; lin < 3; lin++)
+	for (int col = 0; col < 3; col++)
+	if (mat[lin +linie][col + coloana] == num)
+		nr++;
+	return nr;
+}
+
 void verificare()
 {
 	nr = 0;
@@ -64,11 +74,10 @@ void verificare()
 		GetWindowText(Sudoku[i][j], sir, 20);
 		x = atoi(sir);
 		if (x == 0)
-			mat[i][j] = 51; 
+			mat[i][j] = 51;
 		else mat[i][j] = x;
 	}
 
-	//int nr = 0;
 
 	for (int i = 0; i < 9; i++)
 	for (int j = 0; j < 9; j++)                                                  //daca numerele depasesc intervalul 1-9
@@ -79,11 +88,24 @@ void verificare()
 				MB_ICONEXCLAMATION | MB_OK);
 			nr = 1;
 		}
+		if (nr != 0)
+			break;
 	}
 
 	char buffer[4];
 	char buf[80];
-	               // pe coloane
+	/*for (int i = 3; i < 6; i++)
+	for (int j = 0; j < 3; j++)
+	{
+	strcpy_s(buf, "Try better! The following one is wrong: ");
+	_itoa_s(mat[i][j], buffer, 10);
+	strcat_s(buf, buffer);
+	MessageBox(NULL, buf, "Error",
+	MB_ICONEXCLAMATION | MB_OK);
+
+	}*/
+	// pe coloane
+	int c, k, l, h;
 
 	for (int k = 0; k < 9; k++)
 	{
@@ -104,6 +126,7 @@ void verificare()
 			break;
 	}
 
+
 	if (nr == 0)       //pe linii
 	{
 		nr = 0;
@@ -114,7 +137,7 @@ void verificare()
 			if (mat[i][k] == mat[j][k] && mat[i][k] != 51)
 			{
 				{
-					strcpy_s(buf, "Try better! The following one is wrong: ");
+					strcpy_s(buf, "LIN Try better! The following one is wrong: ");
 					_itoa_s(mat[i][k], buffer, 10);
 					strcat_s(buf, buffer);
 					MessageBox(NULL, buf, "Error!",
@@ -126,9 +149,216 @@ void verificare()
 				break;
 		}
 	}
+	/////////////////////////////////////////////////////////////////////////////////////////////
+	if (nr == 0)
+	{
+		k = 1;
+		while (k <= 9)
+		{
+			int linie = 0;
+			int coloana = 0;
+			if (UsedInBox(mat, linie, coloana, k) > 1)
+			{
+				strcpy_s(buf, "Try better! The following one is wrong: ");
+				_itoa_s(k, buffer, 10);
+				strcat_s(buf, buffer);
+				MessageBox(NULL, buf, "Error!",
+					MB_ICONEXCLAMATION | MB_OK);
+				nr++;
+			}
+			if (nr != 0)
+				break;
+			k++;
+		}
+	} //primul patrat
 
-	int i, j, l, h,c, k;
 
+	if (nr == 0)
+	{
+		k = 1;
+		while (k <= 9)
+		{
+			int linie = 3;
+			int coloana = 0;
+			if (UsedInBox(mat, linie, coloana, k) > 1)
+			{
+				strcpy_s(buf, "Try better! The following one is wrong: ");
+				_itoa_s(k, buffer, 10);
+				strcat_s(buf, buffer);
+				MessageBox(NULL, buf, "Error!",
+					MB_ICONEXCLAMATION | MB_OK);
+				nr++;
+			}
+			if (nr != 0)
+				break;
+			k++;
+		}
+	} //al doilea patrat
+
+	//al treilea patrat
+	if (nr == 0)
+	{
+		k = 1;
+		while (k <= 9)
+		{
+			int linie = 6;
+			int coloana = 0;
+			if (UsedInBox(mat, linie,coloana, k) > 1)
+			{
+				strcpy_s(buf, "Try better! The following one is wrong: ");
+				_itoa_s(k, buffer, 10);
+				strcat_s(buf, buffer);
+				MessageBox(NULL, buf, "Error!",
+					MB_ICONEXCLAMATION | MB_OK);
+				nr++;
+			}
+			if (nr != 0)
+				break;
+			k++;
+		}
+	}
+
+ //al patrulea patrat
+	if (nr == 0)
+	{
+		k = 1;
+		while (k <= 9)
+		{
+			int linie = 0;
+			int coloana = 3;
+			if (UsedInBox(mat, linie, coloana, k) > 1)
+			{
+				strcpy_s(buf, "Try better! The following one is wrong: ");
+				_itoa_s(k, buffer, 10);
+				strcat_s(buf, buffer);
+				MessageBox(NULL, buf, "Error!",
+					MB_ICONEXCLAMATION | MB_OK);
+				nr++;
+			}
+			if (nr != 0)
+				break;
+			k++;
+		}
+	}
+
+	// al cincilea
+
+	if (nr == 0)
+	{
+		k = 1;
+		while (k <= 9)
+		{
+			int linie = 3;
+			int coloana = 3;
+			if (UsedInBox(mat, linie, coloana, k) > 1)
+			{
+				strcpy_s(buf, "Try better! The following one is wrong: ");
+				_itoa_s(k, buffer, 10);
+				strcat_s(buf, buffer);
+				MessageBox(NULL, buf, "Error!",
+					MB_ICONEXCLAMATION | MB_OK);
+				nr++;
+			}
+			if (nr != 0)
+				break;
+			k++;
+		}
+	}
+
+	//al saselea
+
+	if (nr == 0)
+	{
+		k = 1;
+		while (k <= 9)
+		{
+			int linie = 6;
+			int coloana = 3;
+			if (UsedInBox(mat, linie, coloana, k) > 1)
+			{
+				strcpy_s(buf, "Try better! The following one is wrong: ");
+				_itoa_s(k, buffer, 10);
+				strcat_s(buf, buffer);
+				MessageBox(NULL, buf, "Error!",
+					MB_ICONEXCLAMATION | MB_OK);
+				nr++;
+			}
+			if (nr != 0)
+				break;
+			k++;
+		}
+	}
+
+	//ultima linie 1
+
+	if (nr == 0)
+	{
+		k = 1;
+		while (k <= 9)
+		{
+			int linie = 0;
+			int coloana = 6;
+			if (UsedInBox(mat, linie, coloana, k) > 1)
+			{
+				strcpy_s(buf, "Try better! The following one is wrong: ");
+				_itoa_s(k, buffer, 10);
+				strcat_s(buf, buffer);
+				MessageBox(NULL, buf, "Error!",
+					MB_ICONEXCLAMATION | MB_OK);
+				nr++;
+			}
+			if (nr != 0)
+				break;
+			k++;
+		}
+	}
+
+	//al doilea ultima linie
+	if (nr == 0)
+	{
+		k = 1;
+		while (k <= 9)
+		{
+			int linie = 3;
+			int coloana = 6;
+			if (UsedInBox(mat, linie, coloana, k) > 1)
+			{
+				strcpy_s(buf, "Try better! The following one is wrong: ");
+				_itoa_s(k, buffer, 10);
+				strcat_s(buf, buffer);
+				MessageBox(NULL, buf, "Error!",
+					MB_ICONEXCLAMATION | MB_OK);
+				nr++;
+			}
+			if (nr != 0)
+				break;
+			k++;
+		}
+	}
+
+	if (nr == 0)
+	{
+		k = 1;
+		while (k <= 9)
+		{
+			int linie = 6;
+			int coloana = 6;
+			if (UsedInBox(mat, linie, coloana, k) > 1)
+			{
+				strcpy_s(buf, "Try better! The following one is wrong: ");
+				_itoa_s(k, buffer, 10);
+				strcat_s(buf, buffer);
+				MessageBox(NULL, buf, "Error!",
+					MB_ICONEXCLAMATION | MB_OK);
+				nr++;
+			}
+			if (nr != 0)
+				break;
+			k++;
+		}
+	}
+
+	/*
 	if (nr == 0)
 		{
 		for (int s = 0; s < 9; s = s + 3)
@@ -138,7 +368,7 @@ void verificare()
 			{
 				for (h = l + 1; h <= s+3; h++)
 				for (k = c + 1; k <= 3; k++)
-				if (mat[l][c] == mat[h][k] && mat[l][c] != 51)
+				if (mat[l][c] == mat[k][h] && mat[l][c] != 51)
 				{ 
 					strcpy_s(buf, "Try better! The following one is wrong: ");
 					_itoa_s(mat[l][c], buffer, 10);
@@ -202,8 +432,8 @@ void verificare()
 			}
 		}
 
-	}
-
+	}*/
+	
 	bool complet = true;                           //daca este toata tabla Sudoku completata
 	for (int i = 0; i < 9;i++)
 	for (int j = 0; j < 9; j++)
@@ -269,7 +499,7 @@ int completare(HWND hwnd,int sudoku[][9], int lin, int col)
 						_itoa_s(mat[lin][col], x, 10);
 						SetWindowText(Sudoku[lin][col], LPSTR(x));
 						UpdateWindow(hwnd);
-						Sleep(0.7);
+						Sleep(0.8);
 					}
 
 					if ((col + 1) < 9)
@@ -283,7 +513,7 @@ int completare(HWND hwnd,int sudoku[][9], int lin, int col)
 							_itoa_s(mat[lin][col], x, 10);
 							SetWindowText(Sudoku[lin][col], LPSTR(x));
 							UpdateWindow(hwnd);
-							Sleep(0.7);
+							Sleep(0.8);
 						}
 					}
 
@@ -298,7 +528,7 @@ int completare(HWND hwnd,int sudoku[][9], int lin, int col)
 							_itoa_s(mat[lin][col], x, 10);
 							SetWindowText(Sudoku[lin][col], LPSTR(x));
 							UpdateWindow(hwnd);
-							Sleep(0.7);
+							Sleep(0.8);
 						}
 					}
 
