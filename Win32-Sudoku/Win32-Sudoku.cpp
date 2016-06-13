@@ -33,25 +33,6 @@ INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK GridProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK DlgProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
-/*LRESULT CALLBACK DlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARAM lParam)
-{
-	switch (Msg)
-	{
-	case WM_INITDIALOG:
-		return TRUE;
-
-	case WM_COMMAND:
-		switch (wParam)
-		{
-		case IDOK:
-			EndDialog(hWndDlg, 0);
-			return TRUE;
-		}
-		break;
-	} 
-	return FALSE;
-}*/
-
 int Verificare_3x3(int mat[N][N], int linie, int coloana, int num)                       //functie verificare patrat 3x3
 {
 	int nr = 0;
@@ -179,61 +160,59 @@ void verificare()
 
 }
 
-int free(int sudoku[][9], int lin, int col, int num)
+int free(int sudoku[][9], int lin, int col, int num)					//functia de verificare pentru Backtracking
 {
 	int i, j;
-	for (i = 0; i<9; ++i)
-	if ((sudoku[lin][i] == num) || (sudoku[i][col] == num))            //verificare in linie si in coloana
+	for (i = 0; i<9; i++)
+	if ((sudoku[lin][i] == num) || (sudoku[i][col] == num))             //verificare in linie si in coloana
 		return 0;
-
-	//patrat
-	int linStart = (lin / 3) * 3;
+																		//patrat
+	int linStart = (lin / 3) * 3;                                       //vor rezulta valorile 0,3,6
 	int colStart = (col / 3) * 3;
 
-	for (i = linStart; i<(linStart + 3); ++i)
+	for (i = linStart; i<(linStart + 3); i++)
 	{ 
-		for (j = colStart; j<(colStart + 3); ++j)
+		for (j = colStart; j<(colStart + 3); j++)
 		{
 			if (sudoku[i][j] == num)
 				return 0;
 		}
 	}
-
 	return 1;
 }
 
-int completare(HWND hwnd,int sudoku[][9], int lin, int col)       // COMPLETARE RECURSIVA
+int completare(HWND hwnd,int sudoku[][9], int lin, int col)               // COMPLETARE RECURSIVA
 {
 	int i;
 	char x[20];
 
 	if (lin<9 && col<9)
 	{
-		if (sudoku[lin][col] != 0)                          //daca este deja ceva in matrice 
+		if (sudoku[lin][col] != 0)                                        //daca este deja ceva in matrice - conditii initiale
 		{
 			if ((col + 1)<9)
-				return completare(hwnd,sudoku, lin, col + 1);             //daca trec pe linia urmatoare
+				return completare(hwnd,sudoku, lin, col + 1);             //trecere pe urmatoarea coloana
 			else if ((lin + 1)<9)
-				return completare(hwnd,sudoku, lin + 1, 0);
+				return completare(hwnd,sudoku, lin + 1, 0);               //daca trec pe linia urmatoare
 			else
-				return 1; 
+				return 1;                                                 //am iesit din functie
 		}
 
-		else                                //daca nu este nimic in matrice pe pozitia respectiva
+		else                                                              //daca nu este nimic in matrice pe pozitia respectiva
 		{
-			for (i = 0; i < 9; ++i)
+			for (i = 0; i < 9; i++)
 			{
-				if (free(sudoku, lin, col, i + 1))
+				if (free(sudoku, lin, col, i + 1))                        //daca indeplineste toate conditiile
 				{
 					{
-						sudoku[lin][col] = i + 1;
+						sudoku[lin][col] = i + 1;                         //matricea din spatele "ecranului"
 						_itoa_s(mat[lin][col], x, 10);
 						SetWindowText(Sudoku[lin][col], LPSTR(x));
-						UpdateWindow(hwnd);
+						UpdateWindow(hwnd);                                //!!!!!!!!!!!!!!!! transmitere mesaj la WM_Paint
 						Sleep(0.8);
 					}
 
-					if ((col + 1) < 9)
+					if ((col + 1) < 9)                                     // linia ramane ct
 					{
 						if (completare(hwnd, sudoku, lin, col + 1))
 							return 1;
@@ -265,19 +244,17 @@ int completare(HWND hwnd,int sudoku[][9], int lin, int col)       // COMPLETARE 
 
 					else
 					{               
-						return 1;
+						return 1;													//am iesit din functie linie=9,coloana=9
 					}
 				}
 			}
 		}
 		return 0;
 	}
-
-	else
-	{
-		return 1;
+	else 
+	{ 
+		return 1; 
 	}
-
 }
 
 void completare_matrice(HWND hwnd)		          // punem in matrice valorile din "Sudoku" introduse de catre utilizator
@@ -304,13 +281,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	switch (msg)
 
 	{
-	case WM_COMMAND:                                      // in caz ca apesi din meniu o anumita cifra
+	case WM_COMMAND:                                
 		wmId = LOWORD(wParam);
 		wmEvent = HIWORD(wParam);
-		// SLECTIILE MENIULUI
+	                                                                           	 // SELECTIILE MENIULUI
 		switch (wmId)
 		{
-		case (40005):                                    // NEW GAME
+		case (40005):                                                            // NEW GAME
 		{
 			 for (int i = 0; i < 9; i++)
 			 for (int j = 0; j < 9; j++)
@@ -324,71 +301,70 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			 for (int i = 0; i < 9;i++)
 			 for (int j = 0; j < 9; j++)
 			 {
-				 if (i == 0 && j == 0) //cheked
+				 if (i == 0 && j == 0) 
 				 {
 					 srand(unsigned(time(NULL)));             //numere de inceput random
-					 r = rand() % 5 + 1;
+					 r = rand() % 5 + 1;                      //nu creez casutele, doar modific valorile din ele
 					 _itoa_s(r, x, 10);
 					 SetWindowText(Sudoku[i][j], LPSTR(x));
 					 UpdateWindow(hwnd);
 				 }
-				 else if (i == 2 && j == 7) //checked
+				 else if (i == 2 && j == 7)  
 				 {
 					 r = rand() % 5 + 1;
 					 _itoa_s(r, x, 10);
 					 SetWindowText(Sudoku[i][j], LPSTR(x));
 					 UpdateWindow(hwnd);
 				 }
-				 else if (i == 1 && j == 8) //checked
+				 else if (i == 1 && j == 8)  
 				 {
 					 SetWindowText(Sudoku[i][j], LPSTR("8"));
 					 UpdateWindow(hwnd);
 				 }
-				 else if (i == 4 && j == 4) //checked
+				 else if (i == 4 && j == 4) 
 				 {
 					 SetWindowText(Sudoku[i][j], LPSTR("9"));
 					 UpdateWindow(hwnd);
 				 }
-				 else if (i == 4 && j == 5) //checked
+				 else if (i == 4 && j == 5)  
 				 {
 					 SetWindowText(Sudoku[i][j], LPSTR("7"));
 					 UpdateWindow(hwnd);
 				 }
-				 else if (i == 5 && j == 6) //checked
+				 else if (i == 5 && j == 6) 
 				 {
 					 SetWindowText(Sudoku[i][j], LPSTR("7"));
 					 UpdateWindow(hwnd);
 				 }
-				 else if (i == 2 && j == 2) //checked
+				 else if (i == 2 && j == 2)  
 				 {
 					 r = rand() % 10;
 					 _itoa_s(r, x, 10); 
 					 SetWindowText(Sudoku[i][j], LPSTR("6"));
 					 UpdateWindow(hwnd);
-
 				 }
 			 
-				 else if (i == 3 && j == 8) //checked
+				 else if (i == 3 && j == 8)  
 				 {
 					 _itoa_s(r, x, 10);
 					 SetWindowText(Sudoku[i][j], LPSTR("9"));
 					 UpdateWindow(hwnd);
 				 }
-				 else if (i == 6 && j == 2) //checked
+				 else if (i == 6 && j == 2)  
 				 {
 					 r = rand() % 5 + 1;
 					 _itoa_s(r, x, 10);
 					 SetWindowText(Sudoku[i][j], LPSTR(x));
 					 UpdateWindow(hwnd);
 				 }
-				 else if (i == 6 && j == 3) //checked
+				 else if (i == 6 && j == 3)  
 				 {
 					 r = rand() % 10;
 					 _itoa_s(r, x, 10);
 					 SetWindowText(Sudoku[i][j], LPSTR("8"));
 					 UpdateWindow(hwnd);
 				 }
-				 else if (i == 8 && j == 8) //checked
+				 else if (i == 8 && j == 8)  
 				 {
 					 r = rand() % 5 + 1;
 					 _itoa_s(r, x, 10);
@@ -401,9 +377,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			 solveit = false;
 			 butonverificare = false;
 		}
+
 	    break;
 
-		case (40016) :  //DIALOG BOX
+		case (40016) :																 //DIALOG BOX
 			DialogBox(hInst, MAKEINTRESOURCE(104), hwnd, About);
 			break;
 
@@ -414,11 +391,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case BN_CLICKED:
 		{
 			{
-				if ((HWND)lParam == idcbuton1) //VERIFICARE 
+				if ((HWND)lParam == idcbuton1)										//VERIFICARE 
 				{
 					if (butonverificare==false)
 					verificare();
-					if (butonverificare == true)                 //daca a fost completata prin algoritm si nu de catre jucator
+					if (butonverificare == true)								    //daca a fost completata prin algoritm si nu de catre jucator
 					{
 						LPCTSTR Caption = "Solved";
 						MessageBox(NULL, "Try to complete the game by yourself -> NEW GAME",
@@ -427,18 +404,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 				}
 
-				if ((HWND)lParam == idcbuton2)
+				if ((HWND)lParam == idcbuton2)							//SOLVE IT
 				{
 					if (solveit==false)
 					verificare();
-					if (nr == 0)					
+					if (nr == 0)										//daca nu sunt greseli
 					{
 						solveit = true;
 						completare_matrice(hwnd);
-						butonverificare = true;
+						butonverificare = true;                         
 					}
 
-					else 
+					else                                              
 					{
 						nr = 0;
 						LPCTSTR Caption = "WAIT!";
@@ -455,73 +432,73 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		} 
 		break;
 
-	case WM_CREATE:
+	case WM_CREATE:                                                           //fereastra de inceput program
 	{
 					  for (int i = 0; i < 9;i++)
 					  for (int j = 0; j < 9; j++)
 					  {
-						  if (i == 0 && j == 0) //cheked
+						  if (i == 0 && j == 0)  
 						  {
-							  srand(unsigned(time(NULL)));             //numere de inceput random
-							  r = rand()%5+1;
+							  srand(unsigned(time(NULL)));                     //numere de inceput random
+							  r = rand()%5+1;								   //casutele in care apar nu sunt RANDOM !!!
 							  _itoa_s(r, x, 10);
 							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), x, WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
 								  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
 						  }
-						  else if (i == 2 && j == 7) //checked
+						  else if (i == 2 && j == 7)  
 						  {
 							  r = rand() % 5+1;
 							  _itoa_s(r, x, 10);
 							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), x, WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
 								  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
 						  }
-						  else if (i == 1 && j == 8) //checked
+						  else if (i == 1 && j == 8) 
 						  {
 							  _itoa_s(r, x, 10);
 							  Sudoku[j][i] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "8", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
 								  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL); 
 						  }
-						  else if (i == 4 && j == 4) //checked
+						  else if (i == 4 && j == 4)  
 						  {
 							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "9", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
 								  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
 						  }
-						  else if (i == 4 && j == 5) //checked
+						  else if (i == 4 && j == 5)  
 						  {
 							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "7", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
 								  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
 						  }
-						  else if (i == 5 && j == 6) //checked
+						  else if (i == 5 && j == 6)  
 						  {
 							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "7", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
 								  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
 						  }
-						  else if (i == 2 && j == 2) //checked
+						  else if (i == 2 && j == 2)  
 						  {
 							  r = rand() % 10;
 							  _itoa_s(r, x, 10); Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "6", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
 								  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
 						  }
-						  else if (i == 3 && j == 8) //checked
+						  else if (i == 3 && j == 8)  
 						  {
 							  _itoa_s(r, x, 10); Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "9", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
 								  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
 						  }
-						  else if (i == 6 && j == 2) //checked
+						  else if (i == 6 && j == 2)  
 						  {
 							  r = rand() % 5+1;
 							  _itoa_s(r, x, 10);
 							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), x, WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
 								  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
 						  }
-						  else if (i == 6 && j == 3) //checked
+						  else if (i == 6 && j == 3)  
 						  {
 							  r = rand() % 10;
 							  _itoa_s(r, x, 10);
 							  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("STATIC"), "8", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
 								  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
 						  }
-						  else if (i == 8 && j == 8) //checked
+						  else if (i == 8 && j == 8)  
 						  {
 							  r = rand() % 5+1;
 							  _itoa_s(r, x, 10);
@@ -531,27 +508,26 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 						  else 
 						  Sudoku[i][j] = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("EDIT"), TEXT(""), WS_CHILD | WS_VISIBLE | ES_CENTER | ES_NUMBER,
-							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);
+							  50 + i * 40, 50 + j * 40, 30, 30, hwnd, NULL, NULL, NULL);     //casute in care se poate completa
 					  }
+
 					  idcbuton1 = CreateWindowEx(NULL, "BUTTON", "Verify! ", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 						430, 150, 150, 30, hwnd, (HMENU)NULL, GetModuleHandle(NULL), NULL);					 
 					  idcbuton2 = CreateWindowEx(NULL, "BUTTON", "Solve it!", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 						  430, 265, 150, 30, hwnd, (HMENU)NULL, GetModuleHandle(NULL), NULL);
 	} 
 	break; 
-
-	case WM_PAINT:
+	 
+	case WM_PAINT:                                                                   //desenare linii - despartire cadrane
 	{
 					 HDC hdc = BeginPaint(hwnd, &ps);
 
 					 HPEN hPenOld;
 					 HPEN hLinePen;
 					 COLORREF qLineColor;
-					 qLineColor = RGB(64, 0, 64);
+					 qLineColor = RGB(64, 0, 64);                                    //culoare linie
 					 hLinePen = CreatePen(PS_SOLID, 5, qLineColor);
 					 hPenOld = (HPEN)SelectObject(hdc, hLinePen);
-
-					 PAINTSTRUCT ps;
 
 					 MoveToEx(hdc, 165, 50, NULL);
 					 LineTo(hdc, 165, 400);
@@ -564,7 +540,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				
 					 MoveToEx(hdc, 50, 285, NULL);
 					 LineTo(hdc, 400, 285);
-
 
 					 EndPaint(hwnd, &ps);
 	}
