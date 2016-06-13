@@ -10,21 +10,20 @@
 #include "stdafx.h" 
 #include <ctime>
 #define N 9
-//function forward declarations 
-
+ 
 int nr = 0;
+int mat[9][9];						//matricea din afara programului
+
+bool butonverificare = false;
+bool solveit = false;                
+const char g_szClassName[] = "myWindowClass";
 
 HINSTANCE hInst;
-bool butonverificare = false;
-bool solveit = false;
 
 HWND   idcbuton1;
-HWND	idcbuton2;
-HWND Sudoku[9][9];
-int mat[9][9];
+HWND   idcbuton2;
+HWND   Sudoku[9][9];					//matrice afisata pe ecran
 
-const char g_szClassName[] = "myWindowClass"; 
-  
 ATOM RegisterGridClass(HINSTANCE); 
 ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
@@ -34,7 +33,7 @@ INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK GridProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK DlgProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
-LRESULT CALLBACK DlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARAM lParam)
+/*LRESULT CALLBACK DlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (Msg)
 	{
@@ -51,22 +50,22 @@ LRESULT CALLBACK DlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 		break;
 	} 
 	return FALSE;
-}
+}*/
 
-int UsedInBox(int mat[N][N], int linie, int coloana, int num)
+int Verificare_3x3(int mat[N][N], int linie, int coloana, int num)                       //functie verificare patrat 3x3
 {
 	int nr = 0;
-	for (int lin= 0; lin < 3; lin++)
+	for (int lin= 0; lin < 3; lin++)													 //linie, coloana={0,3,6}
 	for (int col = 0; col < 3; col++)
-	if (mat[lin +linie][col + coloana] == num)
+	if (mat[lin+linie][col + coloana] == num)
 		nr++;
 	return nr;
-}
+}       
 
 void verificare()
 {
-	nr = 0;
-	CHAR sir[20];
+	nr = 0;																		//pentru fiecare verificare
+	CHAR sir[20];																//functia completare
 	int x;
 	for (int i = 0; i < 9; i++)
 	for (int j = 0; j < 9; j++)
@@ -74,10 +73,9 @@ void verificare()
 		GetWindowText(Sudoku[i][j], sir, 20);
 		x = atoi(sir);
 		if (x == 0)
-			mat[i][j] = 51;
+			mat[i][j] = 51;														// 51=valoare pentru casutele libere
 		else mat[i][j] = x;
 	}
-
 
 	for (int i = 0; i < 9; i++)
 	for (int j = 0; j < 9; j++)                                                  //daca numerele depasesc intervalul 1-9
@@ -94,20 +92,10 @@ void verificare()
 
 	char buffer[4];
 	char buf[80];
-	/*for (int i = 3; i < 6; i++)
-	for (int j = 0; j < 3; j++)
-	{
-	strcpy_s(buf, "Try better! The following one is wrong: ");
-	_itoa_s(mat[i][j], buffer, 10);
-	strcat_s(buf, buffer);
-	MessageBox(NULL, buf, "Error",
-	MB_ICONEXCLAMATION | MB_OK);
 
-	}*/
-	// pe coloane
-	int c, k, l, h;
+	int c, k;
 
-	for (int k = 0; k < 9; k++)
+	for (int k = 0; k < 9; k++)													  //verificare coloane
 	{
 		for (int i = 0; i < 8; i++)
 		for (int j = i + 1; j < 9; j++)
@@ -127,9 +115,8 @@ void verificare()
 	}
 
 
-	if (nr == 0)       //pe linii
+	if (nr == 0)                                                                     //verificare linii
 	{
-		nr = 0;
 		for (int k = 0; k < 9; k++)
 		{
 			for (int i = 0; i < 8; i++)
@@ -137,7 +124,7 @@ void verificare()
 			if (mat[i][k] == mat[j][k] && mat[i][k] != 51)
 			{
 				{
-					strcpy_s(buf, "LIN Try better! The following one is wrong: ");
+					strcpy_s(buf, "Try better! The following one is wrong: ");
 					_itoa_s(mat[i][k], buffer, 10);
 					strcat_s(buf, buffer);
 					MessageBox(NULL, buf, "Error!",
@@ -149,292 +136,36 @@ void verificare()
 				break;
 		}
 	}
-	/////////////////////////////////////////////////////////////////////////////////////////////
-	if (nr == 0)
-	{
-		k = 1;
-		while (k <= 9)
-		{
-			int linie = 0;
-			int coloana = 0;
-			if (UsedInBox(mat, linie, coloana, k) > 1)
-			{
-				strcpy_s(buf, "Try better! The following one is wrong: ");
-				_itoa_s(k, buffer, 10);
-				strcat_s(buf, buffer);
-				MessageBox(NULL, buf, "Error!",
-					MB_ICONEXCLAMATION | MB_OK);
-				nr++;
-			}
-			if (nr != 0)
-				break;
-			k++;
-		}
-	} //primul patrat
 
+	/////////////////////////////////////////// ~Verificare patrate 3x3~ //////////////////////////////////////////////////
+
+	int linie, coloana;
 
 	if (nr == 0)
 	{
-		k = 1;
-		while (k <= 9)
+		for (linie = 0; linie < 9; linie = linie + 3)
+		for (coloana = 0; coloana < 9; coloana = coloana + 3)
 		{
-			int linie = 3;
-			int coloana = 0;
-			if (UsedInBox(mat, linie, coloana, k) > 1)
+			k = 1;
+			while (k <= 9 && nr == 0)
 			{
-				strcpy_s(buf, "Try better! The following one is wrong: ");
-				_itoa_s(k, buffer, 10);
-				strcat_s(buf, buffer);
-				MessageBox(NULL, buf, "Error!",
-					MB_ICONEXCLAMATION | MB_OK);
-				nr++;
-			}
-			if (nr != 0)
-				break;
-			k++;
-		}
-	} //al doilea patrat
-
-	//al treilea patrat
-	if (nr == 0)
-	{
-		k = 1;
-		while (k <= 9)
-		{
-			int linie = 6;
-			int coloana = 0;
-			if (UsedInBox(mat, linie,coloana, k) > 1)
-			{
-				strcpy_s(buf, "Try better! The following one is wrong: ");
-				_itoa_s(k, buffer, 10);
-				strcat_s(buf, buffer);
-				MessageBox(NULL, buf, "Error!",
-					MB_ICONEXCLAMATION | MB_OK);
-				nr++;
-			}
-			if (nr != 0)
-				break;
-			k++;
-		}
-	}
-
- //al patrulea patrat
-	if (nr == 0)
-	{
-		k = 1;
-		while (k <= 9)
-		{
-			int linie = 0;
-			int coloana = 3;
-			if (UsedInBox(mat, linie, coloana, k) > 1)
-			{
-				strcpy_s(buf, "Try better! The following one is wrong: ");
-				_itoa_s(k, buffer, 10);
-				strcat_s(buf, buffer);
-				MessageBox(NULL, buf, "Error!",
-					MB_ICONEXCLAMATION | MB_OK);
-				nr++;
-			}
-			if (nr != 0)
-				break;
-			k++;
-		}
-	}
-
-	// al cincilea
-
-	if (nr == 0)
-	{
-		k = 1;
-		while (k <= 9)
-		{
-			int linie = 3;
-			int coloana = 3;
-			if (UsedInBox(mat, linie, coloana, k) > 1)
-			{
-				strcpy_s(buf, "Try better! The following one is wrong: ");
-				_itoa_s(k, buffer, 10);
-				strcat_s(buf, buffer);
-				MessageBox(NULL, buf, "Error!",
-					MB_ICONEXCLAMATION | MB_OK);
-				nr++;
-			}
-			if (nr != 0)
-				break;
-			k++;
-		}
-	}
-
-	//al saselea
-
-	if (nr == 0)
-	{
-		k = 1;
-		while (k <= 9)
-		{
-			int linie = 6;
-			int coloana = 3;
-			if (UsedInBox(mat, linie, coloana, k) > 1)
-			{
-				strcpy_s(buf, "Try better! The following one is wrong: ");
-				_itoa_s(k, buffer, 10);
-				strcat_s(buf, buffer);
-				MessageBox(NULL, buf, "Error!",
-					MB_ICONEXCLAMATION | MB_OK);
-				nr++;
-			}
-			if (nr != 0)
-				break;
-			k++;
-		}
-	}
-
-	//ultima linie 1
-
-	if (nr == 0)
-	{
-		k = 1;
-		while (k <= 9)
-		{
-			int linie = 0;
-			int coloana = 6;
-			if (UsedInBox(mat, linie, coloana, k) > 1)
-			{
-				strcpy_s(buf, "Try better! The following one is wrong: ");
-				_itoa_s(k, buffer, 10);
-				strcat_s(buf, buffer);
-				MessageBox(NULL, buf, "Error!",
-					MB_ICONEXCLAMATION | MB_OK);
-				nr++;
-			}
-			if (nr != 0)
-				break;
-			k++;
-		}
-	}
-
-	//al doilea ultima linie
-	if (nr == 0)
-	{
-		k = 1;
-		while (k <= 9)
-		{
-			int linie = 3;
-			int coloana = 6;
-			if (UsedInBox(mat, linie, coloana, k) > 1)
-			{
-				strcpy_s(buf, "Try better! The following one is wrong: ");
-				_itoa_s(k, buffer, 10);
-				strcat_s(buf, buffer);
-				MessageBox(NULL, buf, "Error!",
-					MB_ICONEXCLAMATION | MB_OK);
-				nr++;
-			}
-			if (nr != 0)
-				break;
-			k++;
-		}
-	}
-
-	if (nr == 0)
-	{
-		k = 1;
-		while (k <= 9)
-		{
-			int linie = 6;
-			int coloana = 6;
-			if (UsedInBox(mat, linie, coloana, k) > 1)
-			{
-				strcpy_s(buf, "Try better! The following one is wrong: ");
-				_itoa_s(k, buffer, 10);
-				strcat_s(buf, buffer);
-				MessageBox(NULL, buf, "Error!",
-					MB_ICONEXCLAMATION | MB_OK);
-				nr++;
-			}
-			if (nr != 0)
-				break;
-			k++;
-		}
-	}
-
-	/*
-	if (nr == 0)
-		{
-		for (int s = 0; s < 9; s = s + 3)
-		{
-			for (l = s; l < s+2; l++) //aici
-			for (c = 0; c < 2; c++)
-			{
-				for (h = l + 1; h <= s+3; h++)
-				for (k = c + 1; k <= 3; k++)
-				if (mat[l][c] == mat[k][h] && mat[l][c] != 51)
-				{ 
-					strcpy_s(buf, "Try better! The following one is wrong: ");
-					_itoa_s(mat[l][c], buffer, 10);
-					strcat_s(buf, buffer);
-					MessageBox(NULL, buf, "Error!",
-						MB_ICONEXCLAMATION | MB_OK);
-					nr++; 
-				}
-
-				if (nr != 0)
-					break;
-			}
-		}
-	}
-
-	if (nr == 0)
-	{
-		for (int s = 0; s < 9; s = s + 3)
-		{
-			for (l = s; l < s + 2; l++) //aici
-			for (c = 3; c < 5; c++)
-			{
-				for (h = l + 1; h <= s + 3; h++)
-				for (k = c + 1; k <= 5; k++)
-				if (mat[l][c] == mat[h][k] && mat[l][c] != 51)
+				if (Verificare_3x3(mat, linie, coloana, k) > 1)
 				{
 					strcpy_s(buf, "Try better! The following one is wrong: ");
-					_itoa_s(mat[l][c], buffer, 10);
+					_itoa_s(k, buffer, 10);
 					strcat_s(buf, buffer);
 					MessageBox(NULL, buf, "Error!",
 						MB_ICONEXCLAMATION | MB_OK);
 					nr++;
 				}
-
 				if (nr != 0)
 					break;
+				k++;
 			}
-		}  
+		} 
 	}
 
-	if (nr == 0)
-	{
-		for (int s = 0; s < 9; s = s + 3)
-		{
-			for (l = s; l < s + 2; l++) //aici
-			for (c = 6; c < 9; c++)
-			{
-				for (h = l + 1; h <= s + 3; h++)
-				for (k = c + 1; k <= 9; k++)
-				if (mat[l][c] == mat[h][k] && mat[l][c] != 51)
-				{
-					strcpy_s(buf, "Try better! The following one is wrong: ");
-					_itoa_s(mat[l][c], buffer, 10);
-					strcat_s(buf, buffer);
-					MessageBox(NULL, buf, "Error!",
-						MB_ICONEXCLAMATION | MB_OK);
-					nr++;
-					if (nr != 0)
-						break;
-				}
-			}
-		}
-
-	}*/
-	
-	bool complet = true;                           //daca este toata tabla Sudoku completata
+	bool complet = true;                                                 //daca este toata tabla Sudoku completata
 	for (int i = 0; i < 9;i++)
 	for (int j = 0; j < 9; j++)
 	{
@@ -442,7 +173,7 @@ void verificare()
 			complet = false;
 	}
 
-	if (nr==0 && complet==true)                    //daca nu are greseli si este toata completata
+	if (nr==0 && complet==true)                                          //daca nu are greseli si este toata completata
 		MessageBox(NULL, "You have finished the game! Good job !", "You WON!",
 		MB_ICONEXCLAMATION | MB_OK);
 
@@ -471,7 +202,7 @@ int free(int sudoku[][9], int lin, int col, int num)
 	return 1;
 }
 
-int completare(HWND hwnd,int sudoku[][9], int lin, int col) 
+int completare(HWND hwnd,int sudoku[][9], int lin, int col)       // COMPLETARE RECURSIVA
 {
 	int i;
 	char x[20];
@@ -488,7 +219,7 @@ int completare(HWND hwnd,int sudoku[][9], int lin, int col)
 				return 1; 
 		}
 
-		else
+		else                                //daca nu este nimic in matrice pe pozitia respectiva
 		{
 			for (i = 0; i < 9; ++i)
 			{
@@ -549,19 +280,18 @@ int completare(HWND hwnd,int sudoku[][9], int lin, int col)
 
 }
 
-
-void completare_matrice(HWND hwnd)
-{
+void completare_matrice(HWND hwnd)		          // punem in matrice valorile din "Sudoku" introduse de catre utilizator
+{												  // Solve it
 	CHAR sir[20];
 	int x;
 	for (int i = 0; i < 9; i++)
 	for (int j = 0; j < 9; j++)
 	{
-		GetWindowText(Sudoku[i][j], sir, 20);              //pun in matrice valorile din "Sudoku" introduse de catre utilizator
+		GetWindowText(Sudoku[i][j], sir, 20);            
 		x = atoi(sir);
 		mat[i][j] = x;
 	}
-	completare(hwnd,mat, 0, 0); 
+	completare(hwnd,mat, 0, 0);                     
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -571,8 +301,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	HDC hdc;
 	char x[20];
 	int r;
-	//time_t tTime = time(NULL);
-
 	switch (msg)
 
 	{
@@ -686,7 +414,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case BN_CLICKED:
 		{
 			{
-				if ((HWND)lParam == idcbuton1)
+				if ((HWND)lParam == idcbuton1) //VERIFICARE 
 				{
 					if (butonverificare==false)
 					verificare();
@@ -854,7 +582,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	LPSTR lpCmdLine, int nCmdShow)
 {
@@ -868,7 +595,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0; 
 	 
-	wc.hIcon = static_cast<HICON>(LoadImage(hInstance,
+	wc.hIcon = static_cast<HICON>(LoadImage(hInstance,                                      //icon - Sudoku (Desktop)
 		MAKEINTRESOURCE(105),
 		IMAGE_ICON,
 		32,
@@ -895,17 +622,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		return 0;
 	}
 
-	static char szAppName[] = "ExoBrush";
-
-	CreateWindowEx(WS_EX_OVERLAPPEDWINDOW,
-		szAppName, "Pattern Brushes",
-		WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-		CW_USEDEFAULT, CW_USEDEFAULT, 500, 240,
-		NULL, NULL, hInstance, NULL);
-
-
-	hwnd = CreateWindowEx(
-		WS_EX_CLIENTEDGE,
+	hwnd = CreateWindowEx(														     	// dimensiuni fereastra
+		WS_EX_CLIENTEDGE,                                                     // = The window has a border with a sunken edge.
 		g_szClassName,
 		"SUDOKU",
 		WS_BORDER | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
@@ -913,23 +631,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		NULL, NULL, hInstance, NULL);
 
 
-	if (hwnd == NULL)
+	if (hwnd == NULL)															//mesaj de eroare la crearea ferestrei de lucru
 	{
 		MessageBox(NULL, "Window Creation Failed!", "Error!",
 			MB_ICONEXCLAMATION | MB_OK);
 		return 0;
 	}
 
-
 	ShowWindow(hwnd, nCmdShow);
 	UpdateWindow(hwnd);
 	///////////////////////////////////////////////////////////////////
 	UNREFERENCED_PARAMETER(hPrevInstance);
-	// TODO: Place code here.
+	
 	MSG msg;
-	HACCEL hAccelTable;
-
-	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(108));
 
 	while (GetMessage(&Msg, NULL, 0, 0) > 0)
 	{
@@ -940,9 +654,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	return Msg.wParam;
 }
 
-// Message handler for about box.
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
+
+INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)       //Message handler for about box.
+{																					//Mesaj "Resource"
 	UNREFERENCED_PARAMETER(lParam);
 	switch (message)
 	{
